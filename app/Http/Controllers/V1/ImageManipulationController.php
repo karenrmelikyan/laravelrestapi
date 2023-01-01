@@ -32,7 +32,7 @@ class ImageManipulationController extends Controller
      */
     public function resize(ResizeImageRequest $request)
     {
-        //
+        return [];
     }
 
     /**

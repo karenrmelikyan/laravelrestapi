@@ -4,7 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImageManipulation;
-use App\Http\Requests\StoreImageManipulationRequest;
+use App\Http\Requests\ResizeRequest;
 
 class ImageManipulationController extends Controller
 {
@@ -21,10 +21,10 @@ class ImageManipulationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreImageManipulationRequest  $request
+     * @param  \App\Http\Requests\ResizeRequest  $request
      * @return array
      */
-    public function resize()
+    public function resize(ResizeRequest $request)
     {
         return [];
     }

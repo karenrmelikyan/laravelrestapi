@@ -21,8 +21,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('v1')->group(static function () {
+    // Album resource routes
     Route::apiResource('album', AlbumController::class);
 
+<<<<<<< HEAD
+=======
+    // Image manipulation routes
+>>>>>>> test
     Route::get('image', [ImageManipulationController::class, 'index']);
     Route::get('image/by-album/{album}', [ImageManipulationController::class, 'byAlbum']);
     Route::get('image/{image}', [ImageManipulationController::class, 'show']);

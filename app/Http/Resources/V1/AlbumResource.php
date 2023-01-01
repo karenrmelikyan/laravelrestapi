@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AlbumResource extends JsonResource
@@ -9,8 +10,8 @@ class AlbumResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -20,6 +21,5 @@ class AlbumResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
-
     }
 }

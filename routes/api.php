@@ -31,4 +31,3 @@ Route::prefix('v1')->group(static function () {
     Route::post('image/resize', [ImageManipulationController::class, 'resize']);
     Route::delete('image/{image}', [ImageManipulationController::class, 'destroy']);
 });
-

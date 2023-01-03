@@ -31,20 +31,13 @@ class ResizeImageRequest extends FormRequest
             'album_id' => 'exists:\App\Models\Album,id',
         ];
 
-        $image = $this->post('image');
+        $image = $this->all()['image'] ?? false;
         if ($image && $image instanceof UploadedFile) {
             $rules['image'][] = 'image';
         } else {
             $rules['image'][] = 'url';
         }
 
-
-        echo '<pre>';
-        var_dump($rules);
-        echo '</pre>';
-
-        exit();
         return $rules;
     }
-
 }

@@ -9,16 +9,19 @@ class ImageManipulation extends Model
 {
     use HasFactory;
 
-    public const TYPE_RESIZE = 'resize';
-    public const UPDATED_AT = false;
+    const TYPE_RESIZE = 'resize';
+ //   const TYPE_OPTIMIZE = 'optimize';
+ //   const TYPE_CONVERSION = 'convert';
 
-    protected array $filable = [
+    const UPDATED_AT = null;
+
+    protected $fillable = [
+        'type',
         'name',
         'path',
-        'type',
         'data',
         'output_path',
         'user_id',
-        'album_id',
+        'album_id'
     ];
 }

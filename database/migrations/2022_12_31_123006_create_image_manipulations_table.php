@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('image_manipulations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('path');
-            $table->string('type');
+            $table->string('name', 255);
+            $table->string('path', 2000);
+            $table->string('type', 25);
             $table->text('data');
             $table->string('output_path')->nullable();
             $table->timestamp('created_at')->nullable();

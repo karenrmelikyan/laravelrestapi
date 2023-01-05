@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAlbumRequest;
 use App\Http\Requests\UpdateAlbumRequest;
 use App\Http\Resources\V1\AlbumResource;
 use App\Models\Album;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AlbumController extends Controller
@@ -16,9 +17,9 @@ class AlbumController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return AlbumResource::collection(Album::paginate());
+        return AlbumResource::collection(Album::where('user_id', $request->user()->id)->paginate());
     }
 
     /**
@@ -29,7 +30,9 @@ class AlbumController extends Controller
      */
     public function store(StoreAlbumRequest $request)
     {
-        $album = Album::create($request->all());
+        $data = $request->all();
+        $data['user_id'] = $request->user()->id;
+        $album = Album::create($data);
 
         return new AlbumResource($album);
     }
@@ -37,23 +40,31 @@ class AlbumController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Album  $album
+     * @param Album $album
      * @return AlbumResource
      */
-    public function show(Album $album)
+    public function show(Request $request, Album $album)
     {
+        if ($request->user()->id !== $album->user_id) {
+            return abort(403, 'Unauthorized');
+        }
+
         return new AlbumResource($album);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateAlbumRequest  $request
-     * @param  \App\Models\Album  $album
+     * @param UpdateAlbumRequest $request
+     * @param Album $album
      * @return AlbumResource
      */
     public function update(UpdateAlbumRequest $request, Album $album)
     {
+        if ($request->user()->id !== $album->user_id) {
+            return abort(403, 'Unauthorized');
+        }
+
         $album->update($request->all());
 
         return new AlbumResource($album);
@@ -62,11 +73,15 @@ class AlbumController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Album  $album
+     * @param Album $album
      * @return Response
      */
-    public function destroy(Album $album)
+    public function destroy(Request $request, Album $album)
     {
+        if ($request->user()->id !== $album->user_id) {
+            return abort(403, 'Unauthorized');
+        }
+
         $album->delete();
 
         return response('', 204);

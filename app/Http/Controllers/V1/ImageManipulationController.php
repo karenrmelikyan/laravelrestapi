@@ -7,32 +7,39 @@ use App\Http\Resources\V1\ImageManipulationResource;
 use App\Models\Album;
 use App\Models\ImageManipulation;
 use App\Http\Requests\ResizeImageRequest;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Illuminate\Http\Request;
 
 class ImageManipulationController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ImageManipulationResource::collection(ImageManipulation::paginate());
+        return ImageManipulationResource::collection(ImageManipulation::where('user_id', $request->user()->id)->paginate());
     }
 
-    public function byAlbum(Album $album)
+    public function byAlbum(Request $request, Album $album)
     {
+        if ($request->user()->id !== $album->user_id) {
+            return abort(403, 'Unauthorized');
+        }
+
         return ImageManipulationResource::collection(ImageManipulation::where('album_id', $album->id)->paginate());
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \App\Http\Requests\ResizeImageRequest $request
+     * @param ResizeImageRequest $request
      * @return ImageManipulationResource
      */
     public function resize(ResizeImageRequest $request)
@@ -46,10 +53,19 @@ class ImageManipulationController extends Controller
         $data = [
             'type' => ImageManipulation::TYPE_RESIZE,
             'data' => json_encode($all),
-            'user_id' => null,
+            'user_id' => $request->user()->id,
         ];
 
-        $data['album_id'] = $all['album_id'] ?: null;
+        if (isset($all['album_id'])) {
+            $album = Album::find($all['album_id']);
+
+            if ($request->user()->id !== $album->user_id) {
+                return abort(403, 'Unauthorized');
+            }
+
+            $data['album_id'] = $all['album_id'];
+        }
+
 
         $dir = 'images/' . Str::random() . '/';
         $absolutePath = public_path($dir);
@@ -92,28 +108,41 @@ class ImageManipulationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\ImageManipulation $imageManipulation
+     * @param ImageManipulation $image
      * @return ImageManipulationResource
      */
-    public function show(ImageManipulation $image)
+    public function show(Request $request, ImageManipulation $image)
     {
+        if ($request->user()->id !== $image->user_id) {
+            return abort(403, 'Unauthorized');
+        }
+
         return new ImageManipulationResource($image);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\Models\ImageManipulation $imageManipulation
-     * @return \Illuminate\Http\Response
+     * @param ImageManipulation $image
+     * @return Response
      */
-    public function destroy(ImageManipulation $image)
+    public function destroy(Request $request, ImageManipulation $image)
     {
-       $image->delete();
+        if ($request->user()->id !== $image->user_id) {
+            return abort(403, 'Unauthorized');
+        }
 
-       return response('', 204);
+        $image?->delete();
 
+        return response('', 204);
     }
 
+    /**
+     * @param mixed $w
+     * @param mixed $h
+     * @param string $originalPath
+     * @return array
+     */
     protected function getImageSize(mixed $w, mixed $h, string $originalPath)
     {
         $image = Image::make($originalPath);
